@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>資産OS Pro</title>
+
+<link rel="manifest" href="manifest.json">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body{
+margin:0;
+font-family:-apple-system;
+background:#0b0c10;
+color:#fff;
+}
+
+header{
+padding:12px;
+text-align:center;
+background:#111;
+font-weight:700;
+}
+
+nav{
+display:flex;
+flex-wrap:wrap;
+background:#16171b;
+}
+
+nav button{
+flex:1;
+padding:10px;
+border:none;
+background:none;
+color:#aaa;
+}
+
+nav button.active{
+color:#0a84ff;
+border-bottom:2px solid #0a84ff;
+}
+
+.page{display:none;padding:10px}
+.page.active{display:block}
+
+/* ===== カード ===== */
+.card{
+background:#1c1f26;
+padding:14px;
+margin:10px 0;
+border-radius:14px;
+box-shadow:0 4px 12px rgba(0,0,0,0.3);
+}
+
+.assetsBox{
+background:linear-gradient(135deg,#1f3b2c,#1b1e25);
+border:1px solid rgba(46,204,113,0.3);
+}
+
+.liabBox{
+background:linear-gradient(135deg,#3b1f1f,#1b1e25);
+border:1px solid rgba(231,76,60,0.3);
+}
+
+.kpi{
+text-align:center;
+font-size:32px;
+font-weight:700;
+}
+
+/* ===== input ===== */
+input{
+width:100%;
+padding:8px;
+margin:5px 0;
+border:none;
+border-radius:8px;
+background:#222;
+color:#fff;
+}
+
+button.action{
+width:100%;
+padding:10px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+background:#0a84ff;
+color:#fff;
+font-weight:600;
+}
+
+/* ===== row ===== */
+.row{
+display:flex;
+justify-content:space-between;
+padding:4px 0;
+}
+</style>
+</head>
+
+<body>
+
+<header>資産OS Pro</header>
+
+<nav>
+<button onclick="tab(0)">ホーム</button>
+<button onclick="tab(1)">入力</button>
+<button onclick="tab(2)">分析</button>
+<button onclick="tab(3)">BS</button>
+<button onclick="tab(4)">履歴</button>
+</nav>
+
+<!-- HOME -->
+<div class="page active">
+<div class="card">
+<h3>純資産</h3>
+<div id="net">0</div>
+</div>
+
+<div class="card">
+<canvas id="chart"></canvas>
+</div>
+</div>
+
+<!-- INPUT -->
+<div class="page">
+
+<div class="card">
+<h3>資産</h3>
+現金<input id="cash">
+預金<input id="bank">
+株式<input id="stock">
+NISA<input id="nisa">
+土地<input id="land">
+建物<input id="building">
+自動車<input id="carAsset">
+</div>
+
+<div class="card">
+<h3>負債</h3>
+住宅ローン<input id="loan">
+カード<input id="credit">
+その他<input id="other">
+Mローン<input id="mloan">
+M債権<input id="mbond">
+Y債権<input id="ybond">
+</div>
+
+<div class="card">
+<h3>収入</h3>
+給与<input type="date" id="income_date_salary"><input id="income_salary">
+副収入<input type="date" id="income_date_extra"><input id="income_extra">
+運用益<input type="date" id="income_date_invest"><input id="income_invest">
+</div>
+
+<div class="card">
+<h3>支出</h3>
+教育費<input type="date" id="exp_date_education"><input id="exp_education">
+日用品<input type="date" id="exp_date_daily"><input id="exp_daily">
+車<input type="date" id="exp_date_car"><input id="exp_car">
+家具家電<input type="date" id="exp_date_furniture"><input id="exp_furniture">
+
+食費<input type="date" id="exp_date_food"><input id="exp_food">
+住居<input type="date" id="exp_date_house"><input id="exp_house">
+光熱費<input type="date" id="exp_date_util"><input id="exp_util">
+通信費<input type="date" id="exp_date_comm"><input id="exp_comm">
+
+交通費<input type="date" id="exp_date_transport"><input id="exp_transport">
+医療費<input type="date" id="exp_date_med"><input id="exp_med">
+娯楽<input type="date" id="exp_date_ent"><input id="exp_ent">
+その他<input type="date" id="exp_date_other"><input id="exp_other">
+</div>
+
+<button class="action" onclick="saveAll()">保存</button>
+<button class="action" onclick="exportCSV()">CSV出力</button>
+<button class="action" onclick="backupJSON()">バックアップ</button>
+
+</div>
+
+<!-- ANALYSIS -->
+<div class="page">
+<div class="card">
+<h3>分析</h3>
+<div id="analysis"></div>
+</div>
+</div>
+
+<!-- BS -->
+<div class="page">
+<div class="card">
+<h3>貸借対照表</h3>
+
+<div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+<div class="card assetsBox" style="flex:1;min-width:45%">
+<h4>資産</h4>
+<div id="assetsBS"></div>
+</div>
+
+<div class="card liabBox" style="flex:1;min-width:45%">
+<h4>負債</h4>
+<div id="liabBS"></div>
+</div>
+
+</div>
+
+<div class="card">
+<h3>純資産</h3>
+<div id="netBS" class="kpi"></div>
+<div id="risk"></div>
+</div>
+
+</div>
+
+<!-- HISTORY -->
+<div class="page">
+<div class="card">
+<h3>履歴</h3>
+<div id="history"></div>
+</div>
+</div>
+
+<script src="app.js"></script>
+
+<script>
+if("serviceWorker" in navigator){
+navigator.serviceWorker.register("./service-worker.js",{scope:"./"});
+}
+</script>
+
+</body>
+</html>
